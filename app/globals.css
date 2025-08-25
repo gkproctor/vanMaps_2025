@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+body { @apply bg-sand-50 text-slate-900 antialiased; }
+a { @apply text-primary; }
+.btn { @apply rounded-2xl px-4 py-2 bg-primary text-white text-sm font-semibold active:opacity-80; }
+.card { @apply border-b p-3 active:opacity-80; }
+.prose :where(a):not(:where(.not-prose *)) { @apply text-primary; }

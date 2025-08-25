@@ -1,0 +1,1 @@
+export default {name:'location',type:'document',fields:[{name:'name',type:'string'}]}
