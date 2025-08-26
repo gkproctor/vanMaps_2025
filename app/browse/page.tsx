@@ -1,7 +1,6 @@
-import Image from 'next/image';
 import groq from 'groq';
 import { sanityClient } from '@/lib/sanity.client';
-import SearchBar from '@/components/SearchBar';
+import dynamic from 'next/dynamic';
 
 type Item = {
   _id: string;
@@ -24,51 +23,18 @@ async function fetchInitial(): Promise<Item[]> {
   return results || [];
 }
 
+// Dynamically import the client component (no SSR needed for it)
+const BrowseSearchWrapper = dynamic(
+  () => import('@/components/BrowseSearchWrapper'),
+  { ssr: false }
+);
+
 export default async function BrowsePage() {
   const initial = await fetchInitial();
+
   return (
     <main className="mx-auto max-w-screen-sm">
-      <SearchWrapper initial={initial} />
+      <BrowseSearchWrapper initial={initial} />
     </main>
-  );
-}
-
-function Card({ item }: { item: Item }) {
-  return (
-    <a href={`/locations/${item?.slug?.current ?? ''}`} className="card">
-      <div className="flex gap-3">
-        <div className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-sand-50">
-          {item?.image?.asset?.url && (
-            <Image
-              src={item.image.asset.url}
-              alt={item.name || ''}
-              fill
-              sizes="80px"
-              className="object-cover"
-            />
-          )}
-        </div>
-        <div className="min-w-0">
-          <div className="text-base font-semibold truncate">{item?.name}</div>
-          {item?.additionalInfo && (
-            <div className="text-sm text-slate-600 line-clamp-2">
-              {item.additionalInfo}
-            </div>
-          )}
-        </div>
-      </div>
-    </a>
-  );
-}
-
-function SearchWrapper({ initial }: { initial: Item[] }) {
-  const { useState } = require('react');
-  const [items, setItems] = useState<Item[]>(initial);
-
-  return (
-    <>
-      <SearchBar onResults={(r) => setItems(r.length ? r : initial)} />
-      <div>{items.map((it: Item) => (<Card key={it._id} item={it} />))}</div>
-    </>
   );
 }
