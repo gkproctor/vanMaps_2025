@@ -28,7 +28,6 @@ export default async function BrowsePage() {
   const initial = await fetchInitial();
   return (
     <main className="mx-auto max-w-screen-sm">
-      {/* @ts-expect-error Server/Client boundary intentional */}
       <SearchWrapper initial={initial} />
     </main>
   );
