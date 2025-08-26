@@ -1,3 +1,4 @@
+// components/BrowseSearchWrapper.tsx
 'use client';
 
 import { useState } from 'react';
@@ -6,14 +7,21 @@ import Image from 'next/image';
 type Item = {
   _id: string;
   name?: string;
-  slug?: { current?: string };
+  slug?: string; // flattened
   additionalInfo?: string;
   image?: { asset?: { url?: string } };
 };
 
 function Card({ item }: { item: Item }) {
+  if (!item?.slug) {
+    return (
+      <div className="card opacity-70 pointer-events-none">
+        {/* Render content without link */}
+      </div>
+    );
+  }
   return (
-    <a href={`/locations/${item?.slug?.current ?? ''}`} className="card">
+    <a href={`/locations/${item.slug}`} className="card">
       <div className="flex gap-3">
         <div className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-sand-50">
           {item?.image?.asset?.url && (
@@ -39,15 +47,9 @@ function Card({ item }: { item: Item }) {
   );
 }
 
-export default function BrowseSearchWrapper({
-  initial,
-}: {
-  initial: Item[];
-}) {
+export default function BrowseSearchWrapper({ initial }: { initial: Item[] }) {
   const [items, setItems] = useState<Item[]>(initial);
 
-  // Lazy import to avoid bundling server-only code in client
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const SearchBar = require('@/components/SearchBar').default as (props: {
     onResults: (r: Item[]) => void;
   }) => JSX.Element;
