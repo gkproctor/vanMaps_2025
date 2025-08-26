@@ -1,40 +1,34 @@
-import groq from 'groq';
-import { sanityClient } from '@/lib/sanity.client';
-import dynamic from 'next/dynamic';
-
+// 1) Only fetch docs with a defined slug
 type Item = {
   _id: string;
   name?: string;
-  slug?: { current?: string };
+  slug?: string; // ✅ now a plain string
   additionalInfo?: string;
   image?: { asset?: { url?: string } };
 };
 
-const INITIAL_QUERY = groq`*[_type == "location"]|order(name asc)[0...50]{
-  _id,
-  name,
-  slug,
-  additionalInfo,
-  image{asset->{url}}
-}`;
+const INITIAL_QUERY = groq`*[_type == "location" && defined(slug.current)]
+  | order(name asc)[0...50]{
+    _id,
+    name,
+    "slug": slug.current, // flattened to a string
+    additionalInfo,
+    image{asset->{url}}
+  }`;
 
-async function fetchInitial(): Promise<Item[]> {
-  const results = await sanityClient.fetch(INITIAL_QUERY);
-  return results || [];
-}
-
-// Dynamically import the client component (no SSR needed for it)
-const BrowseSearchWrapper = dynamic(
-  () => import('@/components/BrowseSearchWrapper'),
-  { ssr: false }
-);
-
-export default async function BrowsePage() {
-  const initial = await fetchInitial();
+function Card({ item }: { item: Item }) {
+  // Guard: if somehow slug is missing, render a non-link card
+  if (!item?.slug) {
+    return (
+      <div className="card opacity-70 pointer-events-none">
+        {/* ...same inner content... */}
+      </div>
+    );
+  }
 
   return (
-    <main className="mx-auto max-w-screen-sm">
-      <BrowseSearchWrapper initial={initial} />
-    </main>
+    <a href={`/locations/${item.slug}`} className="card">
+      {/* ...same inner content... */}
+    </a>
   );
 }

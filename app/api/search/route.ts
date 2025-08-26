@@ -2,18 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sanityClient } from '@/lib/sanity.client';
 import groq from 'groq';
 
-const QUERY = groq`*[_type == "location" && (
+const QUERY = groq`*[_type == "location" && defined(slug.current) && (
   name match $q || additionalInfo match $q
 )]|order(name asc)[0...50]{
   _id,
   name,
-  slug,
+  "slug": slug.current,   // flatten
   additionalInfo,
   image{asset->{url}},
   coordinates,
   googleMapsUrl,
   appleMapsUrl
 }`;
+
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
