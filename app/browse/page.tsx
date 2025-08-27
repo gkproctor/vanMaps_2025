@@ -11,35 +11,46 @@ type Item = {
   image?: { asset?: { url?: string } };
 };
 
-const INITIAL_QUERY = groq`*[_type == "location" && defined(slug.current)]
-  | order(name asc)[0...50]{
-    _id,
-    name,
-    "slug": slug.current,
-    additionalInfo,
-    image{asset->{url}}
-  }`;
+const BASE_FIELDS = `
+  _id,
+  name,
+  "slug": slug.current,
+  additionalInfo,
+  image{asset->{url}}
+`;
 
-async function fetchInitial(): Promise<Item[]> {
-  const results = await sanityClient.fetch(INITIAL_QUERY);
+// first 50
+const INITIAL_QUERY = groq`*[_type == "location" && defined(slug.current)]
+  | order(name asc)[0...50]{${BASE_FIELDS}}`;
+
+// all
+const ALL_QUERY = groq`*[_type == "location" && defined(slug.current)]
+  | order(name asc){${BASE_FIELDS}}`;
+
+async function fetchList(all: boolean): Promise<Item[]> {
+  const q = all ? ALL_QUERY : INITIAL_QUERY;
+  const results = await sanityClient.fetch(q);
   return results || [];
 }
 
-// Client wrapper for stateful search UI
 const BrowseSearchWrapper = dynamic(
   () => import('@/components/BrowseSearchWrapper'),
   { ssr: false }
 );
 
-// (optional) ISR if you want it in addition to webhooks
-// export const revalidate = 60;
+// export const revalidate = 60; // optional ISR
 
-export default async function BrowsePage() {
-  const initial = await fetchInitial();
+export default async function BrowsePage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
+  const isAll = String(searchParams?.all ?? '') === '1';
+  const items = await fetchList(isAll);
 
   return (
     <main className="mx-auto max-w-screen-sm">
-      <BrowseSearchWrapper initial={initial} />
+      <BrowseSearchWrapper initial={items} isAll={isAll} />
     </main>
   );
 }
