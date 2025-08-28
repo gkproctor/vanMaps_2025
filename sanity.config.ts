@@ -1,14 +1,12 @@
-import { defineConfig } from 'sanity';
-import { deskTool } from 'sanity/desk';
-import { visionTool } from '@sanity/vision';
-import { schemaTypes } from './schemas';
+import { defineConfig } from 'sanity'
+import { deskTool } from 'sanity/desk'
+import { schemaTypes } from './schemas'
 
 export default defineConfig({
-  name: 'vanmaps-studio',
-  title: 'VanMaps Studio',
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-  basePath: '/studio',
-  plugins: [deskTool(), visionTool()],
+  name: 'default',
+  title: 'VanMaps',
+  projectId: 'hu0ksp6y',
+  dataset: 'production',
+  plugins: [deskTool()],
   schema: { types: schemaTypes },
-});
+})
