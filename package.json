@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@sanity/client": "^6.15.6",
-    "@sanity/vision": "^3.39.0",
+    "@sanity/vision": "^4.6.0",
     "@tailwindcss/typography": "^0.5.10",
     "autoprefixer": "^10.4.19",
     "clsx": "^2.1.0",
