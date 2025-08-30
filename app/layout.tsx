@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="max-w-screen-sm mx-auto px-3 py-3 flex items-center justify-between">
           <Link href="/" className="text-lg font-bold">VanMaps</Link>
           <nav className="text-sm">
-            <Link className="mr-4" href="/browse">Browse</Link>
+            <Link className="mr-4" href="/locations">Locations</Link>
             <Link className="mr-4" href="/info">Info</Link>
             <Link href="/contact">Contact</Link>
           </nav>

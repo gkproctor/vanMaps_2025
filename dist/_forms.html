@@ -1,0 +1,15 @@
+<!-- public/__forms.html -->
+<html>
+  <head></head>
+  <body>
+    <!-- This hidden form is only for Netlify's deploy-time detection -->
+    <form name="contact" data-netlify="true" data-netlify-honeypot="clownsOnly" hidden>
+      <input type="hidden" name="form-name" value="contact" />
+      <input name="name" type="text" />
+      <input name="email" type="email" />
+      <textarea name="message"></textarea>
+      <!-- Honeypot field -->
+      <input name="clownsOnly" type="text" />
+    </form>
+  </body>
+</html>

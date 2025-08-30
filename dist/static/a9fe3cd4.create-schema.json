@@ -1,0 +1,109 @@
+[
+  {
+    "fields": [
+      {
+        "name": "id",
+        "type": "string",
+        "title": "ID"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "title": "Location Name"
+      },
+      {
+        "options": {
+          "source": "name",
+          "maxLength": 100
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "name": "radioChannel",
+        "type": "string"
+      },
+      {
+        "name": "additionalInfo",
+        "type": "string"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "googleMapsUrl",
+        "type": "url",
+        "title": "Google Maps URL Link"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "appleMapsUrl",
+        "type": "url",
+        "title": "Apple Maps URL Link"
+      },
+      {
+        "name": "coordinates",
+        "type": "geopoint",
+        "title": "Location Coordinates"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "name": "image",
+        "type": "image"
+      }
+    ],
+    "name": "location",
+    "type": "document",
+    "title": "Locations"
+  }
+]

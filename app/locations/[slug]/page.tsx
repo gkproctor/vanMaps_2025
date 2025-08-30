@@ -1,124 +1,59 @@
-import type { Metadata } from 'next';
-import { sanityClient } from '@/lib/sanity.client';
+// app/locations/page.tsx
 import groq from 'groq';
-import Image from 'next/image';
-import { notFound } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import { sanityClient } from '@/lib/sanity.client';
 
-export const revalidate = 60;
+type Item = {
+  _id: string;
+  name?: string;
+  slug?: string; // flattened
+  additionalInfo?: string;
+  image?: { asset?: { url?: string } };
+};
 
-const DETAIL_QUERY = groq`*[_type=='location' && slug.current==$slug][0]{
+const BASE_FIELDS = `
+  _id,
   name,
-  "slug": slug.current,     // flatten
-  radioChannel,
+  "slug": slug.current,
   additionalInfo,
-  googleMapsUrl,
-  appleMapsUrl,
-  coordinates,
   image{asset->{url}}
-}`;
+`;
 
-async function fetchDetail(slug: string) {
-  try {
-    const data = await sanityClient.fetch(DETAIL_QUERY, { slug });
-    return data || null;
-  } catch (err) {
-    console.error('Location fetch failed', { slug, err });
-    return null;
-  }
+// first 50 shown by default
+const INITIAL_QUERY = groq`*[_type == "location" && defined(slug.current)]
+  | order(name asc)[0...50]{${BASE_FIELDS}}`;
+
+// fetch-all if you ever want to support ?all=1 as before
+const ALL_QUERY = groq`*[_type == "location" && defined(slug.current)]
+  | order(name asc){${BASE_FIELDS}}`;
+
+async function fetchList(all: boolean): Promise<Item[]> {
+  const q = all ? ALL_QUERY : INITIAL_QUERY;
+  const results = await sanityClient.fetch(q);
+  return results || [];
 }
 
-export async function generateMetadata(
-  { params }: { params: { slug: string } }
-): Promise<Metadata> {
-  const data = await fetchDetail(params.slug);
-  if (!data) return { title: 'Location — VanMaps' };
+const BrowseSearchWrapper = dynamic(
+  () => import('@/components/BrowseSearchWrapper'), // re-use your wrapper component
+  { ssr: false }
+);
 
-  const title = data.name ?? 'Location';
-  const description =
-    (data.additionalInfo && String(data.additionalInfo).slice(0, 140)) ||
-    'VanMaps location details.';
-  const imageUrl = data?.image?.asset?.url;
+// export const revalidate = 60; // optional if you also use webhooks
 
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      images: imageUrl ? [{ url: imageUrl }] : undefined,
-      type: 'article',
-    },
-    twitter: {
-      card: imageUrl ? 'summary_large_image' : 'summary',
-      title,
-      description,
-      images: imageUrl ? [imageUrl] : undefined,
-    },
-  };
-}
-
-export default async function LocationPage({ params }: { params: { slug: string } }) {
-  const data = await fetchDetail(params.slug);
-  if (!data) return notFound();
-
-  const hasCoords =
-    data?.coordinates &&
-    typeof data.coordinates.lat === 'number' &&
-    typeof data.coordinates.lng === 'number';
-
-  const googleHref =
-    data?.googleMapsUrl
-      ? data.googleMapsUrl
-      : hasCoords
-        ? `https://www.google.com/maps?q=${data.coordinates.lat},${data.coordinates.lng}`
-        : null;
-
-  const appleHref =
-    data?.appleMapsUrl
-      ? data.appleMapsUrl
-      : hasCoords
-        ? `https://maps.apple.com/?ll=${data.coordinates.lat},${data.coordinates.lng}`
-        : null;
+export default async function LocationsPage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
+  const isAll = String(searchParams?.all ?? '') === '1';
+  const items = await fetchList(isAll);
 
   return (
-    <main className="max-w-screen-sm mx-auto p-3">
-      <div className="relative h-52 w-full rounded-2xl overflow-hidden">
-        {data?.image?.asset?.url ? (
-          <Image src={data.image.asset.url} alt={data?.name || ''} fill className="object-cover" />
-        ) : (
-          <div className="h-full w-full bg-sand-50" />
-        )}
-      </div>
-
-      <h1 className="mt-4 text-2xl font-bold">{data?.name}</h1>
-
-      <div className="my-3 flex gap-2 flex-wrap">
-        {googleHref && (
-          <a className="btn" target="_blank" rel="noreferrer" href={googleHref}>
-            Open in Google Maps
-          </a>
-        )}
-        {appleHref && (
-          <a className="btn" target="_blank" rel="noreferrer" href={appleHref}>
-            Open in Apple Maps
-          </a>
-        )}
-        <button
-          className="btn"
-          onClick={() => navigator.share?.({ title: data?.name, url: location.href })}
-        >
-          Share
-        </button>
-      </div>
-
-      {data?.radioChannel && (
-        <p className="mt-2 text-slate-700">
-          <strong>Radio Channel:</strong> {data.radioChannel}
-        </p>
-      )}
-      {data?.additionalInfo && (
-        <p className="mt-2 leading-7 text-slate-700">{data.additionalInfo}</p>
-      )}
+    <main className="mx-auto max-w-screen-sm">
+      <header className="px-3 pt-4 pb-2">
+        <h1 className="text-2xl font-bold">Locations</h1>
+      </header>
+      <BrowseSearchWrapper initial={items} isAll={isAll} />
     </main>
   );
 }
