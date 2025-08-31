@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, type ComponentType } from 'react';
+import { useRef, useState, type ComponentType } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// Define Item here (or import from a shared types file)
 type Item = {
   _id: string;
   name?: string;
-  slug?: string; // flattened slug string
+  slug?: string;
   additionalInfo?: string;
   image?: { asset?: { url?: string } };
 };
@@ -29,7 +28,6 @@ function Card({ item }: { item: Item }) {
       </div>
     );
   }
-
   return (
     <a href={`/locations/${item.slug}`} className="card">
       <div className="flex gap-3">
@@ -62,20 +60,38 @@ export default function BrowseSearchWrapper({
   initial: Item[];
   isAll: boolean;
 }) {
-  const [items, setItems] = useState<Item[]>(initial);
-
-  // Type-safe reference to your client SearchBar component
+  // ‘view’ holds what's currently rendered (starts with initial)
+  const [view, setView] = useState<Item[]>(initial);
+  const latestQ = useRef<string>(''); // track the most recent query we applied
   const SearchBar = require('@/components/SearchBar')
-    .default as ComponentType<{ onResults: (r: Item[]) => void }>;
-
-  const showingSearch = items.length !== initial.length;
+    .default as ComponentType<{ onResults?: (r: Item[], meta: { q: string }) => void }>;
 
   return (
     <>
-      <SearchBar onResults={(r) => setItems(r.length ? r : initial)} />
-      <div>{items.map((it) => <Card key={it._id} item={it} />)}</div>
+      <SearchBar
+        onResults={(r, { q }) => {
+          // if the query is empty, snap back to initial
+          if (!q.trim()) {
+            latestQ.current = '';
+            setView(initial);
+            return;
+          }
+          // apply results for this query only
+          latestQ.current = q;
+          // keep old list if empty results to avoid jarring flicker; user can refine
+          setView(r.length ? r : view);
+        }}
+      />
 
-      {!isAll && !showingSearch && (
+      {/* list */}
+      <div aria-live="polite" aria-busy="false">
+        {view.map((it) => (
+          <Card key={it._id} item={it} />
+        ))}
+      </div>
+
+      {/* Stable CTA at the bottom */}
+      {!isAll && latestQ.current === '' && (
         <div className="p-3">
           <Link href="/locations?all=1" className="btn w-full text-center block">
             See all locations
