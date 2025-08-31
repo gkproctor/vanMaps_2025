@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 
 type Props = {
@@ -12,7 +12,24 @@ type Props = {
 export default function ImageLightbox({ src, alt = '', thumbHeight = 208 }: Props) {
   const [open, setOpen] = useState(false);
 
+  const openLightbox = useCallback(() => setOpen(true), []);
   const close = useCallback(() => setOpen(false), []);
+
+  // Close on Esc + lock background scroll while open
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open, close]);
+
   const onBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) close();
   };
@@ -23,7 +40,7 @@ export default function ImageLightbox({ src, alt = '', thumbHeight = 208 }: Prop
       <button
         type="button"
         aria-label="Open image"
-        onClick={() => setOpen(true)}
+        onClick={openLightbox}
         className="block w-full relative overflow-hidden rounded-2xl"
         style={{ height: thumbHeight }}
       >
@@ -45,18 +62,8 @@ export default function ImageLightbox({ src, alt = '', thumbHeight = 208 }: Prop
           className="fixed inset-0 z-[999] bg-black/90"
           onClick={onBackdropClick}
         >
-          {/* Close button */}
-          <button
-            type="button"
-            aria-label="Close image"
-            onClick={close}
-            className="absolute top-3 right-3 rounded-full px-3 py-1 text-white text-sm bg-white/15"
-          >
-            ✕
-          </button>
-
-          {/* Large image (contain) */}
-          <div className="absolute inset-0">
+          {/* Large image (behind close button) */}
+          <div className="absolute inset-0 z-0">
             <Image
               src={src}
               alt={alt}
@@ -66,6 +73,16 @@ export default function ImageLightbox({ src, alt = '', thumbHeight = 208 }: Prop
               priority
             />
           </div>
+
+          {/* Close button ABOVE image */}
+          <button
+            type="button"
+            aria-label="Close image"
+            onClick={close}
+            className="absolute top-3 right-3 z-10 rounded-full px-3 py-1 text-white text-sm bg-white/20 hover:bg-white/30 active:bg-white/40"
+          >
+            ✕
+          </button>
         </div>
       )}
     </>
