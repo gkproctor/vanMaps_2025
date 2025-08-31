@@ -1,12 +1,7 @@
-/** @type {import('next').NextConfig} */
+// next.config.js
 const nextConfig = {
-  images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: '**.sanity.io' },
-      { protocol: 'https', hostname: 'cdn.sanity.io' },
-    ],
-  },
-  experimental: { typedRoutes: true },
+  images: { /* … */ },
+  typedRoutes: true,          // ✅ use this key
+  // experimental: { typedRoutes: true }  // ❌ remove this old location
 };
-
 module.exports = nextConfig;
