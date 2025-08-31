@@ -10,17 +10,17 @@
     "studio": "next dev -p 3333"
   },
   "dependencies": {
-    "@sanity/client": "^6.15.6",
+    "@sanity/client": "^7.10.0",
     "@sanity/vision": "^4.6.0",
     "@tailwindcss/typography": "^0.5.10",
     "autoprefixer": "^10.4.19",
     "clsx": "^2.1.0",
-    "groq": "^3.52.0",
-    "next": "^14.2.4",
-    "next-sanity": "^9.3.0",
+    "groq": "^3.99.0",
+    "next": "^15.5.2",
+    "next-sanity": "^10.0.15",
     "postcss": "^8.4.38",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "react-icons": "^5.2.1",
     "sanity": "^4.6.0",
     "styled-components": "^6.1.19",
@@ -28,11 +28,9 @@
     "typescript": "^5.5.2"
   },
   "devDependencies": {
-    "@types/node": "^20.12.12",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
+    "@types/node": "^20.19.11",
     "eslint": "^8.56.0",
-    "eslint-config-next": "^14.2.4"
+    "eslint-config-next": "^15.5.2"
   },
   "description": "[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME)",
   "main": "postcss.config.js",

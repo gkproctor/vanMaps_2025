@@ -1,14 +1,14 @@
-// components/BrowseSearchWrapper.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, type ComponentType } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+// Define Item here (or import from a shared types file)
 type Item = {
   _id: string;
   name?: string;
-  slug?: string;
+  slug?: string; // flattened slug string
   additionalInfo?: string;
   image?: { asset?: { url?: string } };
 };
@@ -29,6 +29,7 @@ function Card({ item }: { item: Item }) {
       </div>
     );
   }
+
   return (
     <a href={`/locations/${item.slug}`} className="card">
       <div className="flex gap-3">
@@ -62,9 +63,10 @@ export default function BrowseSearchWrapper({
   isAll: boolean;
 }) {
   const [items, setItems] = useState<Item[]>(initial);
-  const SearchBar = require('@/components/SearchBar').default as (props: {
-    onResults: (r: Item[]) => void;
-  }) => JSX.Element;
+
+  // Type-safe reference to your client SearchBar component
+  const SearchBar = require('@/components/SearchBar')
+    .default as ComponentType<{ onResults: (r: Item[]) => void }>;
 
   const showingSearch = items.length !== initial.length;
 
@@ -73,12 +75,9 @@ export default function BrowseSearchWrapper({
       <SearchBar onResults={(r) => setItems(r.length ? r : initial)} />
       <div>{items.map((it) => <Card key={it._id} item={it} />)}</div>
 
-      {/* Show "See all" only when:
-          - we're not already on the all view
-          - there is no active narrowed search list */}
       {!isAll && !showingSearch && (
         <div className="p-3">
-          <Link href="/browse?all=1" className="btn w-full text-center block">
+          <Link href="/locations?all=1" className="btn w-full text-center block">
             See all locations
           </Link>
         </div>
