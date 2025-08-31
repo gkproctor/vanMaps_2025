@@ -1,11 +1,11 @@
+// app/locations/[slug]/page.tsx
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import groq from 'groq';
 import { notFound } from 'next/navigation';
 import { sanityClient } from '@/lib/sanity.client';
-import LocationActions from '@/components/LocationActions';
 import ImageLightbox from '@/components/ImageLightbox';
-
+import LocationActions from '@/components/LocationActions';
 
 export const revalidate = 60;
 
@@ -16,7 +16,6 @@ const DETAIL_QUERY = groq`*[_type=='location' && slug.current==$slug][0]{
   radioChannel,
   additionalInfo,
   googleMapsUrl,
-  appleMapsUrl,
   coordinates,
   image{asset->{url}}
 }`;
@@ -82,29 +81,22 @@ export default async function LocationPage(
         ? `https://www.google.com/maps?q=${data.coordinates.lat},${data.coordinates.lng}`
         : null;
 
-  const appleHref =
-    data?.appleMapsUrl
-      ? data.appleMapsUrl
-      : hasCoords
-        ? `https://maps.apple.com/?ll=${data.coordinates.lat},${data.coordinates.lng}`
-        : null;
-
   return (
     <main className="max-w-screen-sm mx-auto p-3">
-      <div className="relative h-52 w-full rounded-2xl overflow-hidden">
-        {/* Tap-to-open image */}
-        {data?.image?.asset?.url ? (
-          <ImageLightbox
-            src={data.image.asset.url}
-            alt={data?.name || ''}
-            thumbHeight={208} // 13rem ≈ h-52
-          />
-        ) : (
-          <div className="h-52 w-full rounded-2xl bg-sand-50" />
-        )}
+      {/* Tap-to-open image */}
+      {data?.image?.asset?.url ? (
+        <ImageLightbox
+          src={data.image.asset.url}
+          alt={data?.name || ''}
+          thumbHeight={208} // ~ h-52
+        />
+      ) : (
+        <div className="h-52 w-full rounded-2xl bg-sand-50" />
+      )}
 
-    <h1 className="mt-4 text-2xl font-bold">{data?.name}</h1>
+      <h1 className="mt-4 text-2xl font-bold">{data?.name}</h1>
 
+      {/* Only Google Maps */}
       <LocationActions googleHref={googleHref} />
 
       {data?.radioChannel && (
