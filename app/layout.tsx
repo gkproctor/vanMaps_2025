@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vanmaps.net'),
