@@ -4,6 +4,8 @@ import groq from 'groq';
 import { notFound } from 'next/navigation';
 import { sanityClient } from '@/lib/sanity.client';
 import LocationActions from '@/components/LocationActions';
+import ImageLightbox from '@/components/ImageLightbox';
+
 
 export const revalidate = 60;
 
@@ -90,20 +92,18 @@ export default async function LocationPage(
   return (
     <main className="max-w-screen-sm mx-auto p-3">
       <div className="relative h-52 w-full rounded-2xl overflow-hidden">
+        {/* Tap-to-open image */}
         {data?.image?.asset?.url ? (
-          <Image
+          <ImageLightbox
             src={data.image.asset.url}
             alt={data?.name || ''}
-            fill
-            sizes="100vw"
-            className="object-cover"
+            thumbHeight={208} // 13rem ≈ h-52
           />
         ) : (
-          <div className="h-full w-full bg-sand-50" />
+          <div className="h-52 w-full rounded-2xl bg-sand-50" />
         )}
-      </div>
 
-      <h1 className="mt-4 text-2xl font-bold">{data?.name}</h1>
+    <h1 className="mt-4 text-2xl font-bold">{data?.name}</h1>
 
       <LocationActions googleHref={googleHref} />
 
