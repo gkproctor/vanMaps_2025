@@ -105,7 +105,7 @@ export default async function LocationPage(
 
       <h1 className="mt-4 text-2xl font-bold">{data?.name}</h1>
 
-      <LocationActions name={data?.name} googleHref={googleHref} appleHref={appleHref} />
+      <LocationActions googleHref={googleHref} />
 
       {data?.radioChannel && (
         <p className="mt-2 text-slate-700">
