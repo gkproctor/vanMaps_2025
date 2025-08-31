@@ -1,13 +1,14 @@
-// app/locations/[slug]/page.tsx
 import type { Metadata } from 'next';
-import { sanityClient } from '@/lib/sanity.client';
-import groq from 'groq';
 import Image from 'next/image';
+import groq from 'groq';
 import { notFound } from 'next/navigation';
+import { sanityClient } from '@/lib/sanity.client';
+import LocationActions from '@/components/LocationActions';
 
 export const revalidate = 60;
 
 const DETAIL_QUERY = groq`*[_type=='location' && slug.current==$slug][0]{
+  _id,
   name,
   "slug": slug.current,
   radioChannel,
@@ -29,9 +30,9 @@ async function fetchDetail(slug: string) {
 }
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ slug: string }> }   // 👈 params is a Promise
+  { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
-  const { slug } = await params;                      // 👈 await it
+  const { slug } = await params;
   const data = await fetchDetail(slug);
 
   const title = data?.name ?? 'Location — VanMaps';
@@ -59,9 +60,11 @@ export async function generateMetadata(
 }
 
 export default async function LocationPage(
-  { params }: { params: Promise<{ slug: string }> }   // 👈 params is a Promise
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { slug } = await params;                      // 👈 await it
+  const { slug } = await params;
+  if (!slug) return notFound();
+
   const data = await fetchDetail(slug);
   if (!data) return notFound();
 
@@ -88,7 +91,13 @@ export default async function LocationPage(
     <main className="max-w-screen-sm mx-auto p-3">
       <div className="relative h-52 w-full rounded-2xl overflow-hidden">
         {data?.image?.asset?.url ? (
-          <Image src={data.image.asset.url} alt={data?.name || ''} fill className="object-cover" />
+          <Image
+            src={data.image.asset.url}
+            alt={data?.name || ''}
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
         ) : (
           <div className="h-full w-full bg-sand-50" />
         )}
@@ -96,24 +105,7 @@ export default async function LocationPage(
 
       <h1 className="mt-4 text-2xl font-bold">{data?.name}</h1>
 
-      <div className="my-3 flex gap-2 flex-wrap">
-        {googleHref && (
-          <a className="btn" target="_blank" rel="noreferrer" href={googleHref}>
-            Open in Google Maps
-          </a>
-        )}
-        {appleHref && (
-          <a className="btn" target="_blank" rel="noreferrer" href={appleHref}>
-            Open in Apple Maps
-          </a>
-        )}
-        <button
-          className="btn"
-          onClick={() => navigator.share?.({ title: data?.name, url: location.href })}
-        >
-          Share
-        </button>
-      </div>
+      <LocationActions name={data?.name} googleHref={googleHref} appleHref={appleHref} />
 
       {data?.radioChannel && (
         <p className="mt-2 text-slate-700">
