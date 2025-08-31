@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'VanMaps',
     title: 'VanMaps',
-    description: 'Find van-friendly locations fast.',
+    description: 'Find train crew locations easily',
     url: 'https://vanmaps.net',
   },
   twitter: {
@@ -18,11 +18,11 @@ export const metadata: Metadata = {
     title: 'VanMaps',
     description: 'Find van-friendly locations fast.',
   },
-  icons: [
-    { rel: 'icon', url: '/favicon.ico' },
-    { rel: 'icon', url: '/favicon.png', type: 'image/png' },
-    { rel: 'apple-touch-icon', url: '/icon.png' },
-  ],
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png', // this covers iOS "Add to Home Screen"
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
