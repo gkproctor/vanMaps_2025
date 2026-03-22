@@ -105,7 +105,11 @@ export default async function LocationPage(
         </p>
       )}
       {data?.additionalInfo && (
-        <p className="mt-2 leading-7 text-slate-700">{data.additionalInfo}</p>
+        <p className="mt-2 leading-7 text-slate-700">
+          <strong>
+            <span role="img" aria-label="Read">👀</span> Additional Info:
+          </strong> {data.additionalInfo}
+        </p>
       )}
     </main>
   );
